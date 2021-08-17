@@ -10,7 +10,7 @@ const app = express();
 app.use(cors());
 // ---from jsonwebtoken docs ----
 var client = jwksClient({
-  // EXCEPTION!  jwksUri comes from your single page application -> settings -> advanced settings -> endpoint -> the jwks one
+  // comes from auth0 docs single page application -> settings -> advanced settings -> endpoint -> the jwks one
   jwksUri: 'https://dev-y7gnygk3.us.auth0.com/.well-known/jwks.json'
 });
 
@@ -37,6 +37,7 @@ app.get('/test', (request, response) => {
     if (err) {
       response.status(500).send('invlaid token');
     }
+    console.log('user: ', user);
     response.send(user);
   });
 })
