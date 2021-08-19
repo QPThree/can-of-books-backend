@@ -5,6 +5,40 @@ const express = require('express');
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const jwksClient = require('jwks-rsa');
+const mongoose = require('mongoose');
+
+mongoose.connect('mongodb://127.0.0.1:27017/books', {useNewUrlParser: true, useUnifiedTopology: true});
+
+const db = mongoose.connection;
+db.on('error', console.error.bind(console, 'connection error:'));
+db.once('open', function() {
+  console.log('Mongoose is connected')
+});
+
+const Book = require('./models/Book');
+
+const testBook1 = new Book({
+  title: "Guns Germs & Steel",
+  description: "The fates of human societies through agriculture, warfare, and environment",
+  status: "read",
+  email: 'youngqp3@gmail.com',
+});
+const testBook2 = new Book({
+  title: "Dune",
+  description: "Dune is set in the distant future amidst a feudal interstellar society in which various noble houses control planetary fiefs",
+  status: "not read",
+  email: 'youngqp3@gmail.com',
+});
+const testBook3 = new Book({
+  title: "Harry Potter and the Sorcerer's Stone",
+  description: "Harry's first year at Hogwarts",
+  status: "read",
+  email: 'youngqp3@gmail.com',
+});
+
+testBook1.save();
+testBook2.save();
+testBook3.save();
 
 const app = express();
 app.use(cors());
@@ -41,5 +75,15 @@ app.get('/test', (request, response) => {
     response.send(user);
   });
 })
+
+app.get('/books', async (request, response) => {
+  try {
+    let booksdb = await Book.find({});
+    response.status(200).send(booksdb);
+  }
+  catch (err) {
+    response.status(500).send('dbase error');
+  }
+});
 
 app.listen(PORT, () => console.log(`listening on ${PORT}`));
