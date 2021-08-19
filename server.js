@@ -17,28 +17,7 @@ db.once('open', function() {
 
 const Book = require('./models/Book');
 
-const testBook1 = new Book({
-  title: "Guns Germs & Steel",
-  description: "The fates of human societies through agriculture, warfare, and environment",
-  status: "read",
-  email: 'youngqp3@gmail.com',
-});
-const testBook2 = new Book({
-  title: "Dune",
-  description: "Dune is set in the distant future amidst a feudal interstellar society in which various noble houses control planetary fiefs",
-  status: "not read",
-  email: 'youngqp3@gmail.com',
-});
-const testBook3 = new Book({
-  title: "Harry Potter and the Sorcerer's Stone",
-  description: "Harry's first year at Hogwarts",
-  status: "read",
-  email: 'youngqp3@gmail.com',
-});
 
-testBook1.save();
-testBook2.save();
-testBook3.save();
 
 const app = express();
 app.use(cors());
@@ -82,8 +61,47 @@ app.get('/books', async (request, response) => {
     response.status(200).send(booksdb);
   }
   catch (err) {
-    response.status(500).send('dbase error');
+    response.status(500).send('database error');
   }
 });
 
+app.get('/clear', async (req, res) => {
+  try {
+    await Book.deleteMany({});
+    res.status(200).send('DB Cleared');
+
+  }
+  catch (err) {
+    res.status(500).send('Error when clearing the DB');
+  }
+} );
+
+app.get('/seed', async (req,res) => {
+  let books = await Book.find({});
+  if (books.length === 0) {
+    const testBook1 = new Book({
+      title: "Guns Germs & Steel",
+      description: "The fates of human societies through agriculture, warfare, and environment",
+      status: "read",
+      email: 'youngqp3@gmail.com',
+    });
+    const testBook2 = new Book({
+      title: "Dune",
+      description: "Dune is set in the distant future amidst a feudal interstellar society in which various noble houses control planetary fiefs",
+      status: "not read",
+      email: 'youngqp3@gmail.com',
+    });
+    const testBook3 = new Book({
+      title: "Harry Potter and the Sorcerer's Stone",
+      description: "Harry's first year at Hogwarts",
+      status: "read",
+      email: 'youngqp3@gmail.com',
+    });
+    
+    testBook1.save();
+    testBook2.save();
+    testBook3.save();
+  }
+  res.send('Seeded The Database');
+})
 app.listen(PORT, () => console.log(`listening on ${PORT}`));
