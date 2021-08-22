@@ -2,6 +2,7 @@
 
 require('dotenv').config();
 const express = require('express');
+
 const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const jwksClient = require('jwks-rsa');
@@ -16,10 +17,13 @@ db.once('open', function() {
 });
 
 const Book = require('./models/Book');
+const BookModel = require('./models/Book');
+
 
 
 
 const app = express();
+app.use(express.json());
 app.use(cors());
 // ---from jsonwebtoken docs ----
 var client = jwksClient({
@@ -37,6 +41,44 @@ function getKey(header, callback) {
 //---------
 const PORT = process.env.PORT || 3001;
 
+//  ---- /books endpoints ----- //
+app.get('/books', async (request, response) => {
+  try {
+    let booksdb = await Book.find({});
+    response.status(200).send(booksdb);
+  }
+  catch (err) {
+    response.status(500).send('database error');
+  }
+});
+app.post('/books', (request, response) => {
+  try{
+    let { title, description, status, email } = request.body;
+    const testBook4 = new Book({
+      title: title,
+      description: description,
+      status: status,
+      email: email,
+    });
+    testBook4.save();
+    response.status(200).send(testBook4);
+  }catch (err){
+    response.status(500).send('Server error with creating a book.');
+  }
+});
+
+app.delete('/books/:id', async (request, response) => {
+  try{
+    let id = request.params.id;
+    await BookModel.findByIdAndDelete(id, );
+    response.status(200).send(`Book has been deleted`);
+  }catch(err){
+    response.status(500).send('Error deleting book in server');
+  }
+});
+
+
+// ---- testing endpoints ----- //
 app.get('/test', (request, response) => {
 
   // TODO: 
@@ -53,18 +95,7 @@ app.get('/test', (request, response) => {
     console.log('user: ', user);
     response.send(user);
   });
-})
-
-app.get('/books', async (request, response) => {
-  try {
-    let booksdb = await Book.find({});
-    response.status(200).send(booksdb);
-  }
-  catch (err) {
-    response.status(500).send('database error');
-  }
 });
-
 app.get('/clear', async (req, res) => {
   try {
     await Book.deleteMany({});
