@@ -18,10 +18,6 @@ db.once('open', function() {
 
 const Book = require('./models/Book');
 const BookModel = require('./models/Book');
-
-
-
-
 const app = express();
 app.use(express.json());
 app.use(cors());
