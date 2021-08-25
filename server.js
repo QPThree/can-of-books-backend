@@ -63,6 +63,16 @@ app.post('/books', (request, response) => {
   }
 });
 
+app.put('/books/:id', async (request, response) => {
+  try{
+    let id = request.params.id;
+    let {title, description, status} = request.body;
+    let updatedBook = await BookModel.findByIdAndUpdate(id, {title, description, status}, {new:true, overwrite:true});
+    response.status(200).send(updatedBook);
+  }catch(err){
+    response.status(500).send("Error updating the books information");
+  }
+})
 app.delete('/books/:id', async (request, response) => {
   try{
     let id = request.params.id;
